@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.ahanaf.appscheduler.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_scheduleFragment"
+            app:destination="@id/scheduleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/scheduleFragment"
+        android:name="com.ahanaf.appscheduler.ui.schedule.ScheduleFragment"
+        android:label="Create schedule"
+        tools:layout="@layout/schedule_fragment" >
+        <action
+            android:id="@+id/action_scheduleFragment_to_allAppsFragment"
+            app:destination="@id/allAppsFragment" />
+        <argument
+            android:name="name"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="packageName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="schedule"
+            app:argType="com.ahanaf.appscheduler.models.ScheduleAppInfo"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/allAppsFragment"
+        android:name="com.ahanaf.appscheduler.ui.allApps.AllAppsFragment"
+        android:label="Select App"
+        tools:layout="@layout/all_apps_fragment" >
+        <action
+            android:id="@+id/action_allAppsFragment_to_scheduleFragment"
+            app:destination="@id/scheduleFragment"
+            app:popUpTo="@id/allAppsFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+</navigation>

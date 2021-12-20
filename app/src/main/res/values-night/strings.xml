@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="empty">Empty!</string>
+    <string name="delete">Delete</string>
+    <string name="schedule_app_name">Schedule App Name</string>
+    <string name="schedule_not_started">Schedule not started</string>
+    <string name="time">Time</string>
+</resources>
