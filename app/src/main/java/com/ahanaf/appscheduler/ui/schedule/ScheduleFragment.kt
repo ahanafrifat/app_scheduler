@@ -8,12 +8,10 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.ahanaf.appscheduler.R
-import com.ahanaf.appscheduler.application.MyApplication
 import com.ahanaf.appscheduler.broadcastReceiver.AppBroadcastReceiver
 import com.ahanaf.appscheduler.databinding.ScheduleFragmentBinding
 import com.ahanaf.appscheduler.models.ScheduleAppInfo
@@ -31,10 +29,10 @@ class ScheduleFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var navController: NavController
     private val args: ScheduleFragmentArgs by navArgs()
-    private var scheduleAppInfo: ScheduleAppInfo? = null
+    private lateinit var scheduleAppInfo: ScheduleAppInfo
     private var timeInMillis: Long? = null
-    private var appName: String? = null
-    private var packageName: String? = null
+    private lateinit var appName: String
+    private lateinit var packageName: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,13 +41,21 @@ class ScheduleFragment : Fragment() {
         _binding = ScheduleFragmentBinding.inflate(layoutInflater, container, false)
 
         setHasOptionsMenu(false)
-        arguments?.let {
-            scheduleAppInfo = ScheduleFragmentArgs.fromBundle(it).schedule
-            scheduleAppInfo?.let { scheduleAppInfo ->
-                setDate(scheduleAppInfo.time!!)
-                setAppName(scheduleAppInfo)
-                setHasOptionsMenu(true)
-            }
+
+        args.schedule?.let { scheduleApp ->
+
+            this.scheduleAppInfo = ScheduleAppInfo(
+                scheduleApp.name,
+                scheduleApp.packageName,
+                scheduleApp.time,
+                scheduleApp.isAlarmActive,
+                scheduleApp.scheduleId
+            )
+            this.scheduleAppInfo.id = scheduleApp.id
+            setAppName(scheduleAppInfo)
+            setDate(scheduleAppInfo.time!!)
+            setHasOptionsMenu(true)
+
         }
 
         return binding.root
@@ -74,8 +80,8 @@ class ScheduleFragment : Fragment() {
             }
 
             scheduleApp.setOnClickListener {
-                if (!appName.isNullOrEmpty() && !packageName.isNullOrEmpty() && timeInMillis != null) {
-                    if (scheduleAppInfo == null) {
+                if (appName.isNotEmpty() && packageName.isNotEmpty() && timeInMillis != null) {
+                    if (!this@ScheduleFragment::scheduleAppInfo.isInitialized) {
                         createNewAlarm()
                     } else {
                         updateAlarm()
@@ -99,25 +105,28 @@ class ScheduleFragment : Fragment() {
 
         viewModel.insertScheduleId.observe(viewLifecycleOwner, { insertScheduleId ->
             insertScheduleId?.let {
-                setAlarmManager(appName!!, packageName!!, timeInMillis!!, it.toInt(), false)
+                setAlarmManager(appName, packageName, timeInMillis!!, it.toInt(), false)
             }
         })
 
-        viewModel.isUpdateSuccessful.observe(viewLifecycleOwner, { isUpdateSuccessful->
+        viewModel.isUpdateSuccessful.observe(viewLifecycleOwner, { isUpdateSuccessful ->
             isUpdateSuccessful?.let {
-                if(it){
-                    setAlarmManager(appName!!, packageName!!, timeInMillis!!, scheduleAppInfo!!.id, false)
+                if (it) {
+                    setAlarmManager(
+                        appName,
+                        packageName, timeInMillis!!, scheduleAppInfo.id, false
+                    )
                 }
             }
         })
     }
 
     private fun createNewAlarm() {
-        viewModel.saveSchedule(appName!!, packageName!!, timeInMillis!!)
+        viewModel.saveSchedule(appName, packageName, timeInMillis!!)
     }
 
     private fun updateAlarm() {
-        viewModel.updateSchedule(appName!!, packageName!!, timeInMillis!!, scheduleAppInfo!!)
+        viewModel.updateSchedule(appName, packageName, timeInMillis!!, scheduleAppInfo)
     }
 
     private fun pickDateTime() {
@@ -141,8 +150,8 @@ class ScheduleFragment : Fragment() {
         this.timeInMillis = pickedDateTime.timeInMillis
         showDate(this.timeInMillis!!)
 
-        if (scheduleAppInfo != null) {
-            scheduleAppInfo!!.time = timeInMillis!!
+        if (this::scheduleAppInfo.isInitialized) {
+            scheduleAppInfo.time = timeInMillis!!
         }
     }
 
@@ -150,8 +159,8 @@ class ScheduleFragment : Fragment() {
         this.timeInMillis = pickedDateTime
         showDate(this.timeInMillis!!)
 
-        if (scheduleAppInfo != null) {
-            scheduleAppInfo!!.time = timeInMillis!!
+        if (this::scheduleAppInfo.isInitialized) {
+            scheduleAppInfo.time = timeInMillis!!
         }
     }
 
@@ -167,8 +176,8 @@ class ScheduleFragment : Fragment() {
     }
 
     private fun setAppName(scheduleAppInfo: ScheduleAppInfo) {
-        this.appName = scheduleAppInfo.name
-        this.packageName = scheduleAppInfo.packageName
+        this.appName = scheduleAppInfo.name!!
+        this.packageName = scheduleAppInfo.packageName!!
         binding.selectApp.text = appName
     }
 
@@ -184,7 +193,7 @@ class ScheduleFragment : Fragment() {
         isCancel: Boolean
     ) {
         val alarmnamager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        var intent = Intent(context, AppBroadcastReceiver::class.java)
+        val intent = Intent(context, AppBroadcastReceiver::class.java)
         intent.putExtra("app_name", appName)
         intent.putExtra("app_package_name", packageName)
         intent.action = "com.ahanaf.appscheduler"
@@ -217,7 +226,7 @@ class ScheduleFragment : Fragment() {
     }
 
     private fun deleteAppInfo() {
-        scheduleAppInfo?.let {
+        scheduleAppInfo.let {
             viewModel.deleteSchedule(it)
             setAlarmManager(it.name!!, it.packageName!!, it.time!!, it.id, true)
         }

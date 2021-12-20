@@ -1,7 +1,6 @@
 package com.ahanaf.appscheduler.ui.allApps
 
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -12,7 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ahanaf.appscheduler.R
 import com.ahanaf.appscheduler.databinding.AllAppsFragmentBinding
 import com.ahanaf.appscheduler.ui.adapters.AppsRecyclerView
 import com.bumptech.glide.Glide
@@ -56,7 +54,7 @@ class AllAppsFragment : Fragment(), AppsRecyclerView.Interaction {
     }
 
     private fun openListOfApps() {
-        val packageManager = context?.getPackageManager()
+        val packageManager = context?.packageManager
         val packages = packageManager?.getInstalledApplications(PackageManager.GET_META_DATA)
         val installedApplication = packages?.let { checkInstalledApps(it) }
         appsRecyclerView.submitList(installedApplication as List<ApplicationInfo>)
@@ -66,11 +64,15 @@ class AllAppsFragment : Fragment(), AppsRecyclerView.Interaction {
         val installedApps: MutableList<ApplicationInfo> = ArrayList()
 
         for (app in packages) {
-            if (app.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0) {
-                installedApps.add(app)
-            } else if (app.flags and ApplicationInfo.FLAG_SYSTEM != 0) {
-            } else {
-                installedApps.add(app)
+            when {
+                app.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0 -> {
+                    installedApps.add(app)
+                }
+                app.flags and ApplicationInfo.FLAG_SYSTEM != 0 -> {
+                }
+                else -> {
+                    installedApps.add(app)
+                }
             }
         }
 

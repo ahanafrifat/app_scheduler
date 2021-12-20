@@ -4,9 +4,6 @@ import androidx.lifecycle.*
 import com.ahanaf.appscheduler.application.MyApplication
 import com.ahanaf.appscheduler.database.AppDatabase
 import com.ahanaf.appscheduler.models.ScheduleAppInfo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class HomeViewModel:ViewModel() {
 

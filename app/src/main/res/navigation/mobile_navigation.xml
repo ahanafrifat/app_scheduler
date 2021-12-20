@@ -23,16 +23,26 @@
         <action
             android:id="@+id/action_scheduleFragment_to_allAppsFragment"
             app:destination="@id/allAppsFragment" />
-        <argument
-            android:name="name"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
-        <argument
-            android:name="packageName"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
+
+<!--        <argument-->
+<!--            android:name="idSchedule"-->
+<!--            app:argType="integer"-->
+<!--            android:defaultValue="0" />-->
+<!--        <argument-->
+<!--            android:name="name"-->
+<!--            app:argType="string"-->
+<!--            app:nullable="true"-->
+<!--            android:defaultValue="@null" />-->
+<!--        <argument-->
+<!--            android:name="packageName"-->
+<!--            app:argType="string"-->
+<!--            app:nullable="true"-->
+<!--            android:defaultValue="@null" />-->
+
+<!--        <argument-->
+<!--            android:name="time"-->
+<!--            app:argType="long"-->
+<!--            android:defaultValue="0L" />-->
         <argument
             android:name="schedule"
             app:argType="com.ahanaf.appscheduler.models.ScheduleAppInfo"

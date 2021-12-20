@@ -1,6 +1,5 @@
 package com.ahanaf.appscheduler.ui.home
 
-import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,15 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.ahanaf.appscheduler.R
 import com.ahanaf.appscheduler.databinding.FragmentHomeBinding
-import android.content.pm.ApplicationInfo
-
-import android.content.pm.PackageInfo
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ahanaf.appscheduler.application.MyApplication
 import com.ahanaf.appscheduler.models.ScheduleAppInfo
 import com.ahanaf.appscheduler.ui.adapters.SchedulRecylerView
 
@@ -45,6 +39,7 @@ class HomeFragment : Fragment(), SchedulRecylerView.Interaction {
         super.onViewCreated(view, savedInstanceState)
 
         navController = Navigation.findNavController(binding.root)
+
         with(binding) {
             fab.setOnClickListener {
                 gotoSchedule()
@@ -71,8 +66,10 @@ class HomeFragment : Fragment(), SchedulRecylerView.Interaction {
     }
 
     private fun gotoScheduleToUpdate(item: ScheduleAppInfo) {
-        val action = HomeFragmentDirections.actionNavigationHomeToScheduleFragment(null, null, item)
-        navController.navigate(action)
+        if(this::navController.isInitialized) {
+            val action = HomeFragmentDirections.actionNavigationHomeToScheduleFragment(item)
+            navController.navigate(action)
+        }
     }
 
     override fun onDestroyView() {
